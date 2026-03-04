@@ -32,4 +32,12 @@ jobs:
       - name: Push the Docker image
         run: docker push ${{ secrets.DOCKERHUB_USER }}/projeto-software-user:latest
 
-        # TODO add deploy
+      - name: Deploy with SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu
+            ./deploy.sh
