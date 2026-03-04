@@ -1,0 +1,35 @@
+name: Deploy automation
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: deploy-action
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Docker hub key
+        run: docker login -u ${{ secrets.DOCKERHUB_USER }} < ${{ secrets.DOCKERHUB_KEY }}
+
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag ${{ secrets.DOCKERHUB_USER }}/projeto-software-user:latest
+
+      - name: Push the Docker image
+        run: docker push ${{ secrets.DOCKERHUB_USER }}/projeto-software-user:latest
+
+        # TODO add deploy
